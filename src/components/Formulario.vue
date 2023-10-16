@@ -7,22 +7,47 @@
         mensaje: ''
     });
 
-    defineEmits(['update:nombre'])
+    const emit = defineEmits(['update:nombre', 'update:propietario', 'update:email', 'update:alta', 'update:sintomas', 'guardar-paciente'])
 
     const props = defineProps({
         nombre: {
+            type: String,
+            required: true
+        },
+        propietario: {
+            type: String,
+            required: true
+        },
+        email: {
+            type: String,
+            required: true
+        },
+        alta: {
+            type: String,
+            required: true
+        },
+        sintomas: {
             type: String,
             required: true
         }
     })
 
     const validar = () => {
-        if(Object.values(paciente).includes('')){
-            alerta.mensaje = 'Todos los campos son obligatorios';
+        if(Object.values(props).includes('')){
             alerta.tipo = 'error'
+            alerta.mensaje = 'Todos los campos son obligatorios'
             return
         } else {
-            console.log('no vacio')
+            emit('guardar-paciente');
+            alerta.mensaje = 'Paciente Almacenado Correctamente'
+            alerta.tipo = 'exito'
+
+            setTimeout(() => {
+                Object.assign(alerta, {
+                    tipo:'',
+                    mensaje:''
+                })
+            }, 3000)
         }
     }
 </script>
@@ -56,6 +81,7 @@
                     id="mascota" 
                     placeholder="Nombre de la Mascota"
                     class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="nombre"
                     @input="$emit('update:nombre', $event.target.value)"
                 />
             </div>
@@ -71,6 +97,8 @@
                     id="propietario" 
                     placeholder="Nombre del propietario"
                     class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="propietario"
+                    @input="$emit('update:propietario', $event.target.value)"
                 />
             </div>
             <div class="mb-5">
@@ -85,6 +113,8 @@
                     id="email" 
                     placeholder="Email del propietario"
                     class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="email"
+                    @input="$emit('update:email', $event.target.value)"
                 />
             </div>
             <div class="mb-5">
@@ -98,6 +128,8 @@
                     type="date"
                     id="alta" 
                     class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="alta"
+                    @input="$emit('update:alta', $event.target.value)"
                 />
             </div>
             <div class="mb-5">
@@ -112,6 +144,8 @@
                     id="sintomas" 
                     placeholder="Describe los síntomas"
                     class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md h-40"
+                    :value="sintomas"
+                    @input="$emit('update:sintomas', $event.target.value)"
                 />
             </div>
 
