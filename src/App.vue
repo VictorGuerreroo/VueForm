@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, reactive } from 'vue'
+    import { ref, reactive, watch, onMounted } from 'vue'
     import { uid } from 'uid'
     import Header from './components/Header.vue'
     import Formulario from './components/Formulario.vue'
@@ -16,11 +16,34 @@
         sintomas: ''
     });
 
+    watch(pacientes, () => {
+        guardarLocalStorage()
+        }, {
+            deep: true
+    })
+
+    const guardarLocalStorage = () => {
+        localStorage.setItem('paciente', JSON.stringify(pacientes.value))
+    }
+
+    onMounted(() => {
+        const pacientesStorage = localStorage.getItem('pacientes');
+        if(pacientesStorage) {
+            pacientes.value = JSON.parse(pacientesStorage)
+        }
+    });
+
     const guardarPaciente = () => {
-        pacientes.value.push({
+        if( paciente.id ) {
+            const { id } = paciente
+            const i = pacientes.value.findIndex((pacienteState) => pacienteState.id === id )
+            pacientes.value[i] = {...paciente}
+        } else {
+            pacientes.value.push({
             ...paciente,
             id: uid()
         });
+        }
 
         /* //Reiniciando el objeto
         paciente.nombre = ''
@@ -35,12 +58,18 @@
             propietario: '',
             email: '',
             alta: '',
-            sintomas: ''
+            sintomas: '',
+            id:null
         })
     };
 
     const actualizarPaciente = (id) => {
-        console.log('desde actualizar paciente', id)
+        const pacienteEditar = pacientes.value.filter( paciente => paciente.id === id)[0]
+        Object.assign(paciente, pacienteEditar)
+    }
+
+    const eliminarPaciente = (id) => {
+        pacientes.value = pacientes.value.filter(paciente => paciente.id !== id)
     }
 </script>
 
@@ -56,6 +85,7 @@
                 v-model:alta="paciente.alta"
                 v-model:sintomas="paciente.sintomas"
                 @guardar-paciente="guardarPaciente"
+                :id="paciente.id"
             />
             
             <div class="md:w-1/2 md:h-screen overflow-y-scroll">
@@ -69,6 +99,7 @@
                         v-for="paciente in pacientes"
                         :paciente="paciente"
                         @actualizar-paciente="actualizarPaciente"
+                        @eliminar-paciente="eliminarPaciente"
                     />
                 </div>
                 <p v-else class="mt-20 text-2xl text-center">No hay pacientes</p>
